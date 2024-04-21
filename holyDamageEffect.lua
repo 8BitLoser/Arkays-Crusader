@@ -5,6 +5,12 @@ local log = logger.getLogger("Arkays Logger") or "Logger Not Found"
 tes3.claimSpellEffectId("bsHolyDamage", 23335)
 local bsHolyDamage
 
+---@type mwseTimer|nil
+local undeadTimer
+local healTimer
+
+
+
 ---@param e tes3magicEffectTickEventData --Tells the function what is viable for different functions
 local function onHolyTick(e)
     local config = mwse.loadConfig("Arkays Crusader")
@@ -20,67 +26,95 @@ local function onHolyTick(e)
         local type = target.object.type
         local undead = tes3.creatureType.undead
 
+        --Timer variables
         local timerDuration = 1 / magnitude
         local iteration = duration * magnitude
-        local countdown = iteration
         local durationLeft = duration
         local spellDur = duration
-        local timerIteration = iteration
 
 
 
-        --Chat idea
+
         local function doHeal(heal)
             local targetHealth = target.mobile.health.current
-           
-            -- iteration = iteration - 1
-            if target.mobile.health.current <= 0 then
-                log:debug("Health >= 0")
-                iteration = 1
-                e.effectInstance.state = tes3.spellState.retired
-            end
-
             local value = heal and 1 or -1 --lua conditional assignement, if heal == true then value = 1, if heal is false then it is -1--Dont get it yet but its a thing 
+            
+            -- iteration = iteration - 1
+            -- if targetHealth <= 0 then
+            --     log:debug("Health >= 0")
+            --     iteration = 1
+            --     e.effectInstance.state = tes3.spellState.retired
+            -- end
+
+            
             tes3.modStatistic({
                 reference = target,
                 name = "health",
                 current = value,
                 limitToBase = true
             })
-            
 
-            if iteration <= 0 then
-                log:debug("Iteration <= 0")
-                e.effectInstance.state = tes3.spellState.retired
-                spellDur = 0
+            -- log:debug("Iteration: %s, Target Health: %s, Undead Timer: %s", iteration, targetHealth, undeadTimer)
+
+            if (iteration <= 0) or (targetHealth <= 0) then
+                log:debug("Iteration or targetHealth <= 0 expire timer")
+                if undeadTimer then
+                    undeadTimer:cancel()
+                end
+
+
+
+                -- --Works just fine but i want to use the compressed one :(
+                -- if undeadTimer then
+                --     undeadTimer:cancel()
+                -- end
+                --  ---Wont work, wont stop trying to call nil value anyway
+                --  (undeadTimer ~= nil and undeadTimer:cancel()) --Condensed nil check, only runs if undeadTimer is not nil
+
+                -- e.effectInstance.state = tes3.spellState.retired
             end
 
-            if config.debug then
-                log:debug("\nDuration: %s \nName: %s \nHealth: %s \nIterations: %s", durationLeft, target.object.name, targetHealth, iteration - 1)
-            end
+           
+
         end
 
-        timer.start({duration = 1,callback = function() durationLeft=durationLeft-1 end, iterations=spellDur})
+        if config.debug then
+            log:debug("\ndurationLeft: %s /spellDur: %s \nName: %s \nHealth: %s \nIterations: %s", durationLeft, spellDur, target.object.name, targetHealth, iteration - 1) 
+        end
+        
+    --    if config.debug then timer.start({duration = 1,callback = function()  durationLeft = durationLeft - 1 log:debug("spellDurTimer")  end, iterations=spellDur}) end --doHeal(spellDur) --spellDur = doHeal(spellDur)
+
+    local count = iteration --Needs to be out of callback function, else its going to reset to the original value every iteration.
 
         if (type ~= undead) then
-            timer.start({
+            healTimer = timer.start({
                 duration = timerDuration,
                 callback = function()
                     doHeal(true)
+                    count = count - 1
+                    log:debug("iteration = %s",count)
                 end,
                 iterations = iteration
             })
         else
-            timer.start({
+           undeadTimer = timer.start({
                 duration = timerDuration,
                 callback = function()
                     doHeal(false)
+                    count = count - 1
+                    log:debug("iteration = %s",count)
                 end,
                 iterations = iteration
             })
         end
-----------------------------------------------------------
+    end
+    e.effectInstance.state = tes3.spellState.retired
+end
 
+
+
+----------------------------------------------------------
+----Works but trying something new
         -- if (type == undead) then
         --     timer.start({
         --         duration = timerDuration,
@@ -116,11 +150,6 @@ local function onHolyTick(e)
         --         iterations = (iteration)
         --     })
         -- end
-    end
-    e.effectInstance.state = tes3.spellState.retired
-end
-
-
 
 
 local function addHolyDamage()
