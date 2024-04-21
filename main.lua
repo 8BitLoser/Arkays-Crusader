@@ -7,23 +7,16 @@ local config = mwse.loadConfig("Arkays Crusader", {
 local logger = require("logging.logger")
 local log = logger.new{
     name = "Arkays Logger",
-    logLevel = "TRACE",
+    logLevel = "WARN",
     logToConsole = true,
 }
 
-if config.debug then
-    log:setLogLevel("DEBUG")
-end
-
+if config.debug then; log:setLogLevel("DEBUG"); end
 require("BeefStranger.Arkays Crusader.holyDamageEffect")
-
-
-
 
 local function initialized()
     print("[MWSE:Arkay's Crusader Initialized]")
 end
-
 
 local spellIds = {
     bsArkaysLight = "bsArkaysLight"
@@ -49,8 +42,6 @@ local function addSpells()
 end
 
 ----=======================Debug========================================
-
-
 local function registerModConfig()
     local template = mwse.mcm.createTemplate("Arkays Crusader")
     template:saveOnClose("Arkays Crusader", config)
@@ -68,6 +59,12 @@ local function onKeyDownP()
     if not tes3.menuMode() then
         if config.debug then
             -- tes3.messageBox("P Pressed")
+            tes3.createReference({
+                object = "skeleton",
+                position = tes3.player.position,
+                orientation = tes3vector3.new(0, 0, 0.67),
+                cell = tes3.player.cell
+            })
             log:debug("P Pressed")
         end
     end
