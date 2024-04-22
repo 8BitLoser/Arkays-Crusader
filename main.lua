@@ -53,6 +53,22 @@ local function registerModConfig()
         label = "Debug Mode",
         variable = mwse.mcm.createTableVariable({ id = "debug", table = config })
     })
+    page:createDropdown{
+        label = "Logging Level",
+        description = "Set the log level.",
+        options = {
+            { label = "TRACE", value = "TRACE"},
+            { label = "DEBUG", value = "DEBUG"},
+            { label = "INFO", value = "INFO"},
+            { label = "WARN", value = "WARN"},
+            { label = "ERROR", value = "ERROR"},
+            { label = "NONE", value = "NONE"},
+        },
+        variable = mwse.mcm.createTableVariable{ id = "logLevel", table = config },
+        callback = function(self)
+            log:setLogLevel(self.variable.value)
+        end
+    }
 end
 
 local function onKeyDownP()

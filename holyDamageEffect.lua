@@ -5,109 +5,100 @@ local log = logger.getLogger("Arkays Logger") or "Logger Not Found"
 tes3.claimSpellEffectId("bsHolyDamage", 23335)
 local bsHolyDamage
 
----@type mwseTimer|nil
-local undeadTimer
-local healTimer
-
-
-
 ---@param e tes3magicEffectTickEventData --Tells the function what is viable for different functions
 local function onHolyTick(e)
+    log:debug("onHolyTick")
     local config = mwse.loadConfig("Arkays Crusader")
     if config.debug then log:setLogLevel("DEBUG") else log:setLogLevel("WARN") end
     if e.effectInstance.target then
+        --Variables
         local target = e.effectInstance.target
         local targetHealth = target.mobile.health.current
-
         local effect = framework.functions.getEffectFromEffectOnEffectEvent(e, tes3.effect.bsHolyDamage)
         local magnitude = framework.functions.getCalculatedMagnitudeFromEffect(effect)
         local duration = effect and math.max(1, effect.duration) or 1
-
         local type = target.object.type
         local undead = tes3.creatureType.undead
 
         --Timer variables
+        ---@type mwseTimer|nil
+        local undeadTimer
+        local healTimer
         local timerDuration = 1 / magnitude
         local iteration = duration * magnitude
         local durationLeft = duration
-        local spellDur = duration
-
-
-
+        local count = (iteration) --Needs to be out of callback function, else its going to reset to the original value every iteration.
+        -- local spellDur = duration
 
         local function doHeal(heal)
-            local targetHealth = target.mobile.health.current
-            local value = heal and 1 or -1 --lua conditional assignement, if heal == true then value = 1, if heal is false then it is -1--Dont get it yet but its a thing 
-            
-            -- iteration = iteration - 1
-            -- if targetHealth <= 0 then
-            --     log:debug("Health >= 0")
-            --     iteration = 1
-            --     e.effectInstance.state = tes3.spellState.retired
-            -- end
-
-            
+            targetHealth = target.mobile.health.current
+            local value = heal and 1 or -1 --lua conditional assignement, if heal == true then value = 1, if heal is false then it is -1--Dont get it yet but its a thing
             tes3.modStatistic({
                 reference = target,
                 name = "health",
                 current = value,
                 limitToBase = true
             })
-
-            -- log:debug("Iteration: %s, Target Health: %s, Undead Timer: %s", iteration, targetHealth, undeadTimer)
-
+            
+            count = count - 1
             if (iteration <= 0) or (targetHealth <= 0) then
-                log:debug("Iteration or targetHealth <= 0 expire timer")
+                log:debug("Iteration or targetHealth = 0")
                 if undeadTimer then
-                    undeadTimer:cancel()
+                    log:debug("Canceling undeadTimer")
+                    undeadTimer:cancel() --timer needs a name to cancel i think, i dont know how to cancel a specific one if not
                 end
-
-
-
-                -- --Works just fine but i want to use the compressed one :(
-                -- if undeadTimer then
-                --     undeadTimer:cancel()
-                -- end
-                --  ---Wont work, wont stop trying to call nil value anyway
-                --  (undeadTimer ~= nil and undeadTimer:cancel()) --Condensed nil check, only runs if undeadTimer is not nil
-
-                -- e.effectInstance.state = tes3.spellState.retired
             end
-
-           
-
+            return count
         end
 
+        -- if config.debug then
+        --     log:debug("\ndurationLeft: %s /spellDur: %s \nName: %s \nHealth: %s \nIterations: %s", durationLeft, spellDur, target.object.name, targetHealth, iteration - 1)
+        -- end
+
+ 
+        local countTimer
+        --just a debug timer to countdown ugly single line but stays out of the way
         if config.debug then
-            log:debug("\ndurationLeft: %s /spellDur: %s \nName: %s \nHealth: %s \nIterations: %s", durationLeft, spellDur, target.object.name, targetHealth, iteration - 1) 
+            countTimer = timer.start({
+                duration = 1,
+                callback = function()
+                    targetHealth = target.mobile.health.current
+                    durationLeft = durationLeft - 1
+                    log:debug("duration Timer, %s", durationLeft)
+                    log:debug("countTimer:targetHealth = %s", targetHealth)
+                    if (iteration <= 0) or (targetHealth <= 0) then
+                        log:info("countTimer:cancel")
+                        countTimer:cancel()
+                    end
+                end,
+                iterations = duration
+            })
         end
-        
-    --    if config.debug then timer.start({duration = 1,callback = function()  durationLeft = durationLeft - 1 log:debug("spellDurTimer")  end, iterations=spellDur}) end --doHeal(spellDur) --spellDur = doHeal(spellDur)
 
-    local count = iteration --Needs to be out of callback function, else its going to reset to the original value every iteration.
+        local totalHealth = targetHealth + (magnitude * duration)
 
         if (type ~= undead) then
             healTimer = timer.start({
                 duration = timerDuration,
                 callback = function()
                     doHeal(true)
-                    count = count - 1
-                    log:debug("iteration = %s",count)
+                    log:info("Health = %s/%s, durationLeft = %s",targetHealth + 1, totalHealth, durationLeft)
                 end,
                 iterations = iteration
             })
         else
-           undeadTimer = timer.start({
+           undeadTimer = timer.start({ --Giving timer a name so i can cancel it
                 duration = timerDuration,
                 callback = function()
                     doHeal(false)
                     count = count - 1
-                    log:debug("iteration = %s",count)
+                    log:info("Iteration: %s \nDuration: %s",count, durationLeft)
                 end,
                 iterations = iteration
             })
         end
     end
+    log:debug("tes3.spellState.retired")
     e.effectInstance.state = tes3.spellState.retired
 end
 
