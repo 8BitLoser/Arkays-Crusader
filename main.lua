@@ -1,5 +1,4 @@
 local framework = include("OperatorJack.MagickaExpanded.magickaExpanded")
-
 local config = mwse.loadConfig("Arkays Crusader", {
     debug = false,
 })
