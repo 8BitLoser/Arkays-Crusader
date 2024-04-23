@@ -136,6 +136,8 @@ local function onKeyDownI()
     if not tes3.menuMode() and config.debug then
         log:debug("I Pressed")
         tes3.addSpell({ reference = tes3.mobilePlayer, spell = "bsArkaysLightT" })
+        local duration = tes3.getObject("bsArkaysLightT").effects[1].duration --good way to get duration/min/max/etc
+        log:debug("duration = %s", duration)
     end
 end
 

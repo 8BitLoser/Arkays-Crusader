@@ -17,6 +17,25 @@ local function onHolyTick(e)
     local targets = framework.functions.getActorsNearTargetPosition(tes3.player.cell, origin, (radius))
     -- log:info("1 = %s, 2 = %s",targets[1].mobile.health.current,targets[2].mobile.health.current)
 
+
+    --trying to make it effect the player----// Think i got it, 
+    --Adds nil check before setting getEffects i think? not sure how to test it, its working, so ill leave it
+    --could have just used effect variable, but need to learn how its done without magickaExpanded
+    local getEffects = #e.sourceInstance.sourceEffects > 0 and e.sourceInstance.sourceEffects[1] ---@type tes3effect how to access the effects properties, getEffects.duration etc
+
+    log:debug("[1]rangeType = %s, radius = %s",getEffects.rangeType, getEffects.radius)
+
+    if getEffects.rangeType == tes3.effectRange.self or getEffects.radius >= 5 then
+        log:debug("[2]rangeType = %s, radius = %s",getEffects.rangeType, getEffects.radius)
+        table.insert(targets, tes3.player)
+    end
+    -- local eff = e.effectIndex[1]
+    -- if e.effectInstance.target == tes3.player then
+    --     table.insert(targets, tes3.player)
+    -- end
+    ----------
+
+
     if targets and #targets > 0 then    --# "determines the number of elements in the table" if the targets table exists and has atleast 1 thing in it, do below
         local magnitude = framework.functions.getCalculatedMagnitudeFromEffect(effect)
         local duration = effect and math.max(1, effect.duration) or 1 --compressed nil check, if effect exists set duration to effect.duration, if it doesnt just say 1
@@ -40,8 +59,8 @@ local function onHolyTick(e)
                 limitToBase = true          --stops healing from buffing total health
             })
             -- log:info("[1] = %s,[2] = %s", target.mobile.health.current, target.mobile.health.current)
-            count = count - 1                           --Lowers count(iteration) var by 1 every loop so i can cancel the timer
-            if (count <= 0) or (targetHealth <= 0) then --if it runs out of iterations/ health to take, cancel the timer
+            -- count = count - 1                           --Lowers count(iteration) var by 1 every loop so i can cancel the timer|dont think i need this?
+            if --[[(count <= 0) or ]](targetHealth <= 0) then --if it runs out of iterations/ health to take, cancel the timer
                 log:debug("count = %s | targetHealth = %s", count, targetHealth)
                 if undeadTimer then                     --nil check, no other version would work,
                     log:debug("Canceling undeadTimer")
@@ -64,6 +83,9 @@ local function onHolyTick(e)
                 effectIndex = e.sourceInstance.source:getFirstIndexOfEffect(tes3.effect.bsHolyDamage),
             })
             local id = i
+
+
+
             if type ~= undead then
                 local healTimer = timer.start({
                     duration = timerDuration,
@@ -105,7 +127,7 @@ local function addHolyDamage()
         -- Flags
         allowSpellmaking = true,
         canCastTarget = true,
-        canCastSelf = false,
+        canCastSelf = true,
         canCastTouch = true,
 
         -- Graphics / sounds.
