@@ -1,8 +1,10 @@
 local spellMaker = {}
+local logger = require("logging.logger")
+local log = logger.getLogger("Arkays Logger") or "Logger Not Found"
 
-function spellMaker.calculateSpellCost(effect)
+function spellMaker.calculateSpellCost(effects)
     local totalCost = 0
-    for _, effect in ipairs(effect) do
+    for _, effect in ipairs(effects) do
         local minMag = effect.min or 0
         local maxMag = effect.max or 1
         local duration = effect.duration or 1
@@ -55,8 +57,6 @@ function spellMaker.createBasic(params)
         castType = params.castType or tes3.spellType["spell"],
         alwaysSucceeds = params.alwaysSucceeds or false,
 
-        
-
         effects = {{
             id = params.effect,
             min = params.min,
@@ -66,18 +66,19 @@ function spellMaker.createBasic(params)
             radius = params.radius,
 
             attribute = params.attribute or nil,
-            -- cost = params.cost,
+            cost = params.cost,
             skill = params.skill or nil,
             -- cost = calculatedCost,
         }},
 
-        
-
+        magickaCost = 15,
         autoCalc = params.autoCalc or false,
         playerStart = params.playerStart or false,
         sourceless = params.sourceless or true,
     })
-    local calculatedCost = params.cost or spellMaker.calculateSpellCost(spell)
+    
+    -- spell.magickaCost = params.cost or spellMaker.calculateSpellCost(spell)
+
 
     return spell
 end
