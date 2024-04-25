@@ -2,7 +2,9 @@ local effectMaker = {}
 
 function effectMaker.getSchool(school)
     print("Received effect:" .. school)
-    local autoIcon, areaSound, areaVFX, boltSound, boltVFX, castSound, castVFX, hitSound, hitVFX, particleTexture
+    -- Setup all the variables I'll be returning to .create
+    local autoIcon, areaSound, areaVFX, boltSound, boltVFX, castSound, castVFX, hitSound, hitVFX, particleTexture 
+    --Setup all default required fx/sounds
     if school == 0 then --Alteration|Cant use tes3.magicShcool.alteration for some reason
         autoIcon = "s\\Tx_s_burden.dds"
         areaSound = "alteration area"
@@ -70,24 +72,9 @@ function effectMaker.getSchool(school)
         hitVFX = "VFX_RestorationHit"
         particleTexture = "vfx_myst_flare01.tga"
     end
+    --Return all the variables to be used in .create
     return autoIcon, areaSound, areaVFX, boltSound, boltVFX, castSound, castVFX, hitSound, hitVFX, particleTexture
 end
-
-
-    --     return "s\\Tx_s_burden.dds"
-    -- elseif effect.school == 1 then --Conjuration
-    --     return "s\\tx_s_turn_undead.dds"
-    -- elseif effect.school == 2 then  --Destruction
-    --     return "s\\Tx_s_dmg_fati.tga"
-    -- elseif effect.school == 3 then  --Illusion
-    --     return "s\\tx_s_cm_crture.dds"
-    -- elseif effect.school == 4 then  --Mysticism
-    --     return "s\\tx_s_alm_intervt.dds"
-    -- elseif effect.school == 5 then  --Restoration
-    --     return "s\\Tx_S_ftfy_skill.tga"
-
-
-
 
 --- @class EffectParams
 --- @field id integer The unique identifier for the magic effect. (tes3.effect.light)
@@ -131,15 +118,12 @@ end
 
 --- @param params EffectParams The configuration table for the new magic effect.
 function effectMaker.create(params)
+    --Default name if not supplied. (dont remember why i needed this, something wasnt working right)
     params.name = params.name or "Error: Unnamed Effect"
-
+    -- Set school variable to either the entered school or a default if something goes wrong.
     local school = params.school or tes3.magicSchool["alteration"]
-
-    print("create:" .. school)
-    
+    -- Getting all the variables from .getSchool, get in same order, and use _, to skip
     local autoIcon, areaSound, areaVFX, boltSound, boltVFX, castSound, castVFX, hitSound, hitVFX, particleTexture = effectMaker.getSchool(school)
-
-    print("particleTexture:" .. particleTexture .. "castVFX:" .. castVFX .. "hitSound:" .. hitSound .. "hitVFX:" .. hitVFX)
 
     local effect = tes3.addMagicEffect({
         id = params.id,
@@ -184,24 +168,7 @@ function effectMaker.create(params)
         onTick = params.onTick or nil,
         onCollision = params.onCollision or nil,
     })
-
-        print("Effect school set to:" .. effect.school) -- Debugging line
-
-
-
     return effect
 end
 
-
 return effectMaker
-
-
--- print("Icon Changed to:" .. defaultIcon)
--- if effect.areaSoundEffect == areaSound then
---     print("areaSound == areaSound")
--- end
---     print("created effect:" .. effect.areaSoundEffect)
--- print("Creating effect with name:" .. params.name)
--- local defaultIcon = effectMaker.getSchool(effect)
--- local autoIcon, areaSound, areaVFX, boltSound, boltVFX, castSound, castVFX, hitSound, hitVFX = effectMaker.getSchool(effect)
--- effect.icon = params.icon or autoIcon -- defaultIcon
