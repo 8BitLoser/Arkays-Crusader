@@ -101,14 +101,14 @@ end
 --- @field allowEnchanting boolean? Whether the effect can be used in enchanting.
 --- @field allowSpellmaking boolean? Whether the effect can be used in spellmaking.
 --- @field appliesOnce boolean? Whether the effect applies once or continuously.
---- @field canCastSelf boolean? Whether the effect can be cast on self.
---- @field canCastTarget boolean? Whether the effect can be cast on a target.
---- @field canCastTouch boolean? Whether the effect can be cast by touch.
---- @field casterLinked boolean? Whether the effect is linked to the caster.
---- @field hasNoDuration boolean? Whether the effect has no duration.
---- @field hasNoMagnitude boolean? Whether the effect has no magnitude.
---- @field illegalDaedra boolean? Whether the effect is illegal for Daedra.
---- @field isHarmful boolean? Whether the effect is considered harmful.
+--- @field canCastSelf boolean? Default: true. Whether the effect can be cast on self.
+--- @field canCastTarget boolean? Default: true. Whether the effect can be cast on a target.
+--- @field canCastTouch boolean? Default: true. Whether the effect can be cast by touch.
+--- @field casterLinked boolean? Default: true. Whether the effect is linked to the caster.
+--- @field hasNoDuration boolean? Default: false. Whether the effect has no duration.
+--- @field hasNoMagnitude boolean? Default: false. Whether the effect has no magnitude.
+--- @field illegalDaedra boolean? Default: false. Whether the effect is illegal for Daedra.
+--- @field isHarmful boolean? Default: false. Whether the effect is considered harmful.
 --- @field nonRecastable boolean? Whether the effect is non-recastable.
 --- @field targetsAttributes boolean? Whether the effect targets attributes.
 --- @field targetsSkills boolean? Whether the effect targets skills.
@@ -125,6 +125,7 @@ function effectMaker.create(params)
     -- Getting all the variables from .getSchool, get in same order, and use _, to skip
     local autoIcon, areaSound, areaVFX, boltSound, boltVFX, castSound, castVFX, hitSound, hitVFX, particleTexture = effectMaker.getSchool(school)
 
+    print("Registering " .. params.id .. " in school index" .. params.school)
     local effect = tes3.addMagicEffect({
         id = params.id,
         name = params.name,
@@ -141,7 +142,7 @@ function effectMaker.create(params)
         hasContinuousVFX = params.hasContinuousVFX or false,
         hitSound = params.hitSound or hitSound,
         hitVFX = params.hitVFX or hitVFX,
-        icon = params.icon or autoIcon or "default icon.tga", -- "s\\Tx_S_ftfy_skill.tga",
+        icon = params.icon or autoIcon or "default icon.tga",
         lighting = params.lighting,
         particleTexture = params.particleTexture or particleTexture,
         size = params.size or 1,
@@ -152,10 +153,10 @@ function effectMaker.create(params)
         allowEnchanting = params.allowEnchanting or false,
         allowSpellmaking = params.allowSpellmaking or false,
         appliesOnce = params.appliesOnce or false,
-        canCastSelf = params.canCastSelf or false,
-        canCastTarget = params.canCastTarget or false,
-        canCastTouch = params.canCastTouch or false,
-        casterLinked = params.casterLinked or false,
+        canCastSelf = params.canCastSelf or true,
+        canCastTarget = params.canCastTarget or true,
+        canCastTouch = params.canCastTouch or true,
+        casterLinked = params.casterLinked or true,
         hasNoDuration = params.hasNoDuration or false,
         hasNoMagnitude = params.hasNoMagnitude or false,
         illegalDaedra = params.illegalDaedra or false,

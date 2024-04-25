@@ -4,14 +4,16 @@ local config = mwse.loadConfig("Arkays Crusader", {
 })
 
 local logger = require("logging.logger")
-local log = logger.new{
+local log = logger.new {
     name = "Arkays Logger",
     logLevel = "WARN",
     logToConsole = true,
 }
 
-if config.debug then; log:setLogLevel("DEBUG"); end
+if config.debug then log:setLogLevel("DEBUG") end
 require("BeefStranger.Arkays Crusader.holyDamageEffect")
+require("BeefStranger.Arkays Crusader.restorationEffectTemplate")
+require("BeefStranger.Arkays Crusader.testeffect")
 
 local function initialized()
     print("[MWSE:Arkay's Crusader Initialized]")
@@ -19,52 +21,42 @@ end
 
 local spellIds = {
     bsArkaysLight = "bsArkaysLight",
-    bsAbility = "bsAbility"
+    bsAbility = "bsAbility",
+    bsTest = "bsTest"
 }
+
+local spellMaker = require("BeefStranger.Arkays Crusader.spellMaker")
 
 local spell = tes3.objectType.spell
 
 
 local function registerSpells()
-    -- framework.spells.createBasicSpell({ --Works perfectly but trying something else
-    --     id = spellIds.bsArkaysLight,
-    --     name = "Arkay's Light",
-    --     effect = tes3.effect.bsHolyDamage,
-    --     range = tes3.effectRange.target,
-    --     min = 1,
-    --     max = 4,
-    --     duration = 10,
-    -- })
-
-    local bsArkaysLightT = tes3.createObject({ --The built in way to create a spell, lets me use castType, Snippet = createSpell
-        objectType = spell,
-        id = "bsArkaysLightT",
-        name = "createObject Arkay",
-        effects = {{
-            id = tes3.effect.bsHolyDamage,
-            min = 5,
-            max = 5,
-            duration = 10,
-            rangeType = tes3.effectRange.target
-        }}
-    })
-
-    local bsAbility = tes3.createObject({ --[[@as tes3spell]]
-        objectType = tes3.objectType.spell,
-        castType = tes3.spellType.ability,
-        id = "bsAbility",
-        name = "Test Ability",
-        --[[@tes3effect]]
-        effects = {{ 
-            id = tes3.effect.chameleon,
-            min = 10,
-            max = 10,
-            rangeType = tes3.effectRange.self
-        }}
-    }) 
 
 
 
+
+--     -- framework.spells.createBasicSpell({ --Works perfectly but trying something else
+--     --     id = spellIds.bsArkaysLight,
+--     --     name = "Arkay's Light",
+--     --     effect = tes3.effect.bsHolyDamage,
+--     --     range = tes3.effectRange.target,
+--     --     min = 1,
+--     --     max = 4,
+--     --     duration = 10,
+--     -- })
+
+--     local bsArkaysLightT = tes3.createObject({ --The built in way to create a spell, lets me use castType, Snippet = createSpell
+--         objectType = spell,
+--         id = "bsArkaysLightT",
+--         name = "createObject Arkay",
+--         effects = {{
+--             id = tes3.effect.bsHolyDamage,
+--             min = 5,
+--             max = 5,
+--             duration = 10,
+--             rangeType = tes3.effectRange.target
+--         }}
+--     })
 
     -- framework.spells.createBasicSpell({ --Cant get it to add castType
     --     id = spellIds.bsAbility,
@@ -72,17 +64,64 @@ local function registerSpells()
     --     castType = tes3.spellType.ability,
     --     effect = tes3.effect.chameleon,
     --     range = tes3.effectRange.self,
-        
+
     --     min = 25,
     --     max = 25,
     -- })
+
+    local functionTest = spellMaker.createBasic({
+        id = "FunctionTest",
+        name = "Function Test",
+        castType = tes3.spellType.spell,
+        alwaysSucceeds = true,
+        effect = tes3.effect.testEffect,
+        min = 20,
+        duration = 30,
+        range = tes3.effectRange.target,
+        cost = 50,
+
+    })
+
+    -- local advanceTest = spellMaker.createAdvanced({
+    --     id = "advancedTest",
+    --     name = "advancedTest",
+    --     effects = {
+    --         {
+    --             effect = tes3.effect["frostDamage"],
+    --             min = 20,
+    --         },
+    --         {
+    --             effect = tes3.effect["fireDamage"],
+    --             min = 15,
+    --         }
+    --     }
+
+    -- })
+
+    local advanceTest = spellMaker.create({
+        id = "advancedTest",
+        name = "advancedTest",
+        effect = tes3.effect["frostDamage"],
+        min = 15,
+        duration = 50,
+
+        effect2 = tes3.effect["fireDamage"],
+        duration2 = 20,
+
+        effect3 = tes3.effect["light"],
+        min3 = 10,
+        duration3 = 5,
+        
+    })
 end
+
+
 
 event.register("loaded", registerSpells)
 
 local function addSpells()
     if config.debug then
-        tes3.addSpell({ reference = tes3.mobilePlayer, spell = "bsArkaysLight" })
+        tes3.addSpell({ reference = tes3.mobilePlayer, spell = "FunctionTest" })
         log:debug("Adding Spell to player")
     end
 end
@@ -99,18 +138,18 @@ local function registerModConfig()
         label = "Debug Mode",
         variable = mwse.mcm.createTableVariable({ id = "debug", table = config })
     })
-    page:createDropdown{
+    page:createDropdown {
         label = "Logging Level",
         description = "Set the log level.",
         options = {
-            { label = "TRACE", value = "TRACE"},
-            { label = "DEBUG", value = "DEBUG"},
-            { label = "INFO", value = "INFO"},
-            { label = "WARN", value = "WARN"},
-            { label = "ERROR", value = "ERROR"},
-            { label = "NONE", value = "NONE"},
+            { label = "TRACE", value = "TRACE" },
+            { label = "DEBUG", value = "DEBUG" },
+            { label = "INFO",  value = "INFO" },
+            { label = "WARN",  value = "WARN" },
+            { label = "ERROR", value = "ERROR" },
+            { label = "NONE",  value = "NONE" },
         },
-        variable = mwse.mcm.createTableVariable{ id = "logLevel", table = config },
+        variable = mwse.mcm.createTableVariable { id = "logLevel", table = config },
         callback = function(self)
             log:setLogLevel(self.variable.value)
         end
@@ -135,9 +174,15 @@ end
 local function onKeyDownI()
     if not tes3.menuMode() and config.debug then
         log:debug("I Pressed")
-        tes3.addSpell({ reference = tes3.mobilePlayer, spell = "bsArkaysLightT" })
-        local duration = tes3.getObject("bsArkaysLightT").effects[1].duration --good way to get duration/min/max/etc
-        log:debug("duration = %s", duration)
+
+        local effect = tes3.getMagicEffect(tes3.effect.testEffect)
+        -- tes3.addSpell({ reference = tes3.mobilePlayer, spell = "bsArkaysLightT" })
+        -- local duration = tes3.getObject("bsArkaysLightT").effects[1].duration --good way to get duration/min/max/etc
+        -- log:debug("duration = %s", duration)
+        if effect then
+            log:debug("school = %s", effect.school)
+        end
+
     end
 end
 
