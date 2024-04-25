@@ -1,85 +1,207 @@
 local effectMaker = {}
 
-function effectMaker.getSchool(effect)
-    print("Received effect:" .. effect.school)
-    local autoIcon
-    if effect.school == 0 then --Alteration|Cant use tes3.magicShcool.alteration for some reason
+function effectMaker.getSchool(school)
+    print("Received effect:" .. school)
+    local autoIcon, areaSound, areaVFX, boltSound, boltVFX, castSound, castVFX, hitSound, hitVFX, particleTexture
+    if school == 0 then --Alteration|Cant use tes3.magicShcool.alteration for some reason
         autoIcon = "s\\Tx_s_burden.dds"
-        return "s\\Tx_s_burden.dds"
-    elseif effect.school == 1 then --Conjuration
-        return "s\\tx_s_turn_undead.dds"
-    elseif effect.school == 2 then  --Destruction
-        return "s\\Tx_s_dmg_fati.tga"
-    elseif effect.school == 3 then  --Illusion
-        return "s\\tx_s_cm_crture.dds"
-    elseif effect.school == 4 then  --Mysticism
-        return "s\\tx_s_alm_intervt.dds"
-    elseif effect.school == 5 then  --Restoration
-        return "s\\Tx_S_ftfy_skill.tga"
+        areaSound = "alteration area"
+        areaVFX = "VFX_AlterationArea"
+        boltSound = "alteration bolt"
+        boltVFX = "VFX_AlterationBolt"
+        castSound = "alteration cast"
+        castVFX = "VFX_AlterationCast"
+        hitSound = "alteration hit"
+        hitVFX = "VFX_AlterationHit"
+        particleTexture = "vfx_alt_glow.tga"
+    elseif school == 1 then --Conjuration
+        autoIcon = "s\\tx_s_turn_undead.dds"
+        areaSound = "conjuration area"
+        areaVFX = "VFX_DefaultArea"
+        boltSound = "conjuration bolt"
+        boltVFX = "VFX_DefaultBolt"
+        castSound = "conjuration cast"
+        castVFX = "VFX_ConjureCast"
+        hitSound = "conjuration hit"
+        hitVFX = "VFX_DefaultHit"
+        particleTexture = "vfx_conj_flare02.tga"
+    elseif school == 2 then  --Destruction
+        autoIcon = "s\\Tx_s_dmg_fati.tga"
+        areaSound = "destruction area"
+        areaVFX = "VFX_DestructArea"
+        boltSound = "destruction bolt"
+        boltVFX = "VFX_DestructBolt"
+        castSound = "destruction cast"
+        castVFX = "VFX_DestructCast"
+        hitSound = "destruction hit"
+        hitVFX = "VFX_DestructHit"
+        particleTexture = "vfx_alpha_bolt01.tga"
+    elseif school == 3 then  --Illusion
+        autoIcon = "s\\tx_s_cm_crture.dds"
+        areaSound = "illusion area"
+        areaVFX = "VFX_IllusionArea"
+        boltSound = "illusion bolt"
+        boltVFX = "VFX_IllusionBolt"
+        castSound = "illusion cast"
+        castVFX = "VFX_IllusionCast"
+        hitSound = "illusion hit"
+        hitVFX = "VFX_IllusionHit"
+        particleTexture = "vfx_grnflare.tga"
+    elseif school == 4 then  --Mysticism
+        autoIcon = "s\\tx_s_alm_intervt.dds"
+        areaSound = "mysticism area"
+        areaVFX = "VFX_MysticismArea"
+        boltSound = "mysticism bolt"
+        boltVFX = "VFX_MysticismBolt"
+        castSound = "mysticism cast"
+        castVFX = "VFX_MysticismCast"
+        hitSound = "mysticism hit"
+        hitVFX = "VFX_MysticismHit"
+        particleTexture = "vfx_bluecloud.tga"
+    elseif school == 5 then  --Restoration
+        autoIcon = "s\\Tx_S_ftfy_skill.tga"
+        areaSound = "restoration area"
+        areaVFX = "VFX_RestorationArea"
+        boltSound = "restoration bolt"
+        boltVFX = "VFX_RestoreBolt"
+        castSound = "restoration cast"
+        castVFX = "VFX_RestorationCast"
+        hitSound = "restoration hit"
+        hitVFX = "VFX_RestorationHit"
+        particleTexture = "vfx_myst_flare01.tga"
     end
-    return autoIcon
+    return autoIcon, areaSound, areaVFX, boltSound, boltVFX, castSound, castVFX, hitSound, hitVFX, particleTexture
 end
 
+
+    --     return "s\\Tx_s_burden.dds"
+    -- elseif effect.school == 1 then --Conjuration
+    --     return "s\\tx_s_turn_undead.dds"
+    -- elseif effect.school == 2 then  --Destruction
+    --     return "s\\Tx_s_dmg_fati.tga"
+    -- elseif effect.school == 3 then  --Illusion
+    --     return "s\\tx_s_cm_crture.dds"
+    -- elseif effect.school == 4 then  --Mysticism
+    --     return "s\\tx_s_alm_intervt.dds"
+    -- elseif effect.school == 5 then  --Restoration
+    --     return "s\\Tx_S_ftfy_skill.tga"
+
+
+
+
+--- @class EffectParams
+--- @field id integer The unique identifier for the magic effect. (tes3.effect.light)
+--- @field name string The name of the magic effect.
+--- @field baseCost number? Default:1. The base cost of the magic effect.
+--- @field school tes3.magicSchool The school of magic the effect belongs to.
+--- @field icon string? Optional. The path to the icon representing the effect.
+--- @field areaSound string? Default:Will Use placeholder fx for school. The sound played for area effects.
+--- @field areaVFX string? Default:Will Use placeholder fx for school. The visual effects played for area effects.
+--- @field boltSound string? Default:Will Use placeholder fx for school. The sound played when the effect is used in a bolt.
+--- @field boltVFX string? Default:Will Use placeholder fx for school. The visual effects played when the effect is used in a bolt.
+--- @field castSound string? Default:Will Use placeholder fx for school. The sound played when the effect is cast.
+--- @field castVFX string? Default:Will Use placeholder fx for school. The visual effects played when the effect is cast.
+--- @field hitSound string? Default:Will Use placeholder fx for school. The sound played when the effect hits a target.
+--- @field hitVFX string? Default:Will Use placeholder fx for school. The visual effects played when the effect hits a target.
+--- @field particleTexture string? Default:Will Use placeholder fx for school. The texture of the particles used in the effect.
+--- @field description string? Optional. A description of the effect.
+--- @field size number? Default:1. The size parameter of the effect.
+--- @field sizeCap number? Default:1. The maximum size of the effect.
+--- @field speed number? Default:1. The speed at which the effect travels.
+--- @field lighting table? Optional. Example { x = 0.99, y = 0.26, z = 0.53 }. Lighting effects associated with the magic effect.
+--- @field usesNegativeLighting boolean? Whether the effect uses negative lighting.
+--- @field hasContinuousVFX boolean? Default:false. Whether the effect has continuous visual effects.
+--- @field allowEnchanting boolean? Whether the effect can be used in enchanting.
+--- @field allowSpellmaking boolean? Whether the effect can be used in spellmaking.
+--- @field appliesOnce boolean? Whether the effect applies once or continuously.
+--- @field canCastSelf boolean? Whether the effect can be cast on self.
+--- @field canCastTarget boolean? Whether the effect can be cast on a target.
+--- @field canCastTouch boolean? Whether the effect can be cast by touch.
+--- @field casterLinked boolean? Whether the effect is linked to the caster.
+--- @field hasNoDuration boolean? Whether the effect has no duration.
+--- @field hasNoMagnitude boolean? Whether the effect has no magnitude.
+--- @field illegalDaedra boolean? Whether the effect is illegal for Daedra.
+--- @field isHarmful boolean? Whether the effect is considered harmful.
+--- @field nonRecastable boolean? Whether the effect is non-recastable.
+--- @field targetsAttributes boolean? Whether the effect targets attributes.
+--- @field targetsSkills boolean? Whether the effect targets skills.
+--- @field unreflectable boolean? Whether the effect is unreflectable.
+--- @field onTick function? Optional. The function called each tick the effect is active.
+--- @field onCollision function? Optional. The function called when the effect collides.
+
+--- @param params EffectParams The configuration table for the new magic effect.
 function effectMaker.create(params)
     params.name = params.name or "Error: Unnamed Effect"
+
+    local school = params.school or tes3.magicSchool["alteration"]
+
+    print("create:" .. school)
+    
+    local autoIcon, areaSound, areaVFX, boltSound, boltVFX, castSound, castVFX, hitSound, hitVFX, particleTexture = effectMaker.getSchool(school)
+
+    print("particleTexture:" .. particleTexture .. "castVFX:" .. castVFX .. "hitSound:" .. hitSound .. "hitVFX:" .. hitVFX)
+
     local effect = tes3.addMagicEffect({
         id = params.id,
         name = params.name,
-        baseCost = params.baseCost,
+        baseCost = params.baseCost or 1,
         school = params.school,
 
-        size = params.size,
-        sizeCap = params.sizeCap,
-        speed = params.speed,
+        areaSound = params.areaSound or areaSound,
+        areaVFX = params.areaVFX or areaVFX,
+        boltSound = params.boltSound or boltSound,
+        boltVFX = params.boltVFX or boltVFX,
+        castSound = params.castSound or castSound,
+        castVFX = params.castVFX or castVFX,
         description = params.description,
+        hasContinuousVFX = params.hasContinuousVFX or false,
+        hitSound = params.hitSound or hitSound,
+        hitVFX = params.hitVFX or hitVFX,
+        icon = params.icon or autoIcon or "default icon.tga", -- "s\\Tx_S_ftfy_skill.tga",
         lighting = params.lighting,
-        icon = params.icon or "default icon.tga", -- "s\\Tx_S_ftfy_skill.tga",
-        particleTexture = params.particleTexture,
-        castSound = params.castSound,
-        boltSound = params.boltSound,
-        hitSound = params.hitSound,
-        areaSound = params.areaSound,
-        castVFX = params.castVFX,
-        boltVFX = params.boltVFX,
-        hitVFX = params.hitVFX,
-        areaVFX = params.areaVFX,
-        usesNegativeLighting = params.usesNegativeLighting,
-        hasContinuousVFX = params.hasContinuousVFX,
+        particleTexture = params.particleTexture or particleTexture,
+        size = params.size or 1,
+        sizeCap = params.sizeCap or 1,
+        speed = params.speed or 1,
+        usesNegativeLighting = params.usesNegativeLighting or false,
 
-        allowEnchanting = params.allowEnchanting,
-        allowSpellmaking = params.allowSpellmaking,
-        appliesOnce = params.appliesOnce,
-        canCastSelf = params.canCastSelf,
-        canCastTarget = params.canCastTarget,
-        canCastTouch = params.canCastTouch,
-        casterLinked = params.casterLinked,
-        hasNoDuration = params.hasNoDuration,
-        hasNoMagnitude = params.hasNoMagnitude,
-        illegalDaedra = params.illegalDaedra,
-        isHarmful = params.isHarmful,
-        nonRecastable = params.nonRecastable,
+        allowEnchanting = params.allowEnchanting or false,
+        allowSpellmaking = params.allowSpellmaking or false,
+        appliesOnce = params.appliesOnce or false,
+        canCastSelf = params.canCastSelf or false,
+        canCastTarget = params.canCastTarget or false,
+        canCastTouch = params.canCastTouch or false,
+        casterLinked = params.casterLinked or false,
+        hasNoDuration = params.hasNoDuration or false,
+        hasNoMagnitude = params.hasNoMagnitude or false,
+        illegalDaedra = params.illegalDaedra or false,
+        isHarmful = params.isHarmful or false,
+        nonRecastable = params.nonRecastable or false,
         targetsAttributes = params.targetsAttributes or false,
         targetsSkills = params.targetsSkills or false,
-        unreflectable = params.unreflectable,
+        unreflectable = params.unreflectable or false,
 
-        onTick = params.onTick,
-        onCollision = params.onCollision,
+        onTick = params.onTick or nil,
+        onCollision = params.onCollision or nil,
     })
-        print("Creating effect with name:" .. params.name)
-    local defaultIcon = effectMaker.getSchool(effect)
-    local autoIcon = effectMaker.getSchool(effect)
-    effect.icon = autoIcon -- defaultIcon
 
         print("Effect school set to:" .. effect.school) -- Debugging line
 
 
-        print("Icon Changed to:" .. defaultIcon)
+
     return effect
 end
 
 
-
-
-
-
 return effectMaker
+
+
+-- print("Icon Changed to:" .. defaultIcon)
+-- if effect.areaSoundEffect == areaSound then
+--     print("areaSound == areaSound")
+-- end
+--     print("created effect:" .. effect.areaSoundEffect)
+-- print("Creating effect with name:" .. params.name)
+-- local defaultIcon = effectMaker.getSchool(effect)
+-- local autoIcon, areaSound, areaVFX, boltSound, boltVFX, castSound, castVFX, hitSound, hitVFX = effectMaker.getSchool(effect)
+-- effect.icon = params.icon or autoIcon -- defaultIcon
